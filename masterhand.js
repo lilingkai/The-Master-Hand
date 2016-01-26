@@ -109,8 +109,9 @@ function initVertexBuffer(gl) {
   makeCylinder();
   makeCube();
   makePenthouse();
+  makeSixPyr();
   
-  var mySiz = (cylVerts.length + cubeVerts.length + pentVerts.length);
+  var mySiz = (cylVerts.length + cubeVerts.length + pentVerts.length + pyrVerts.length);
   var nn = (mySiz / floatsPerVertex);
 
   var colorShapes = new Float32Array(mySiz);
@@ -126,7 +127,10 @@ function initVertexBuffer(gl) {
     for(j=0; j< pentVerts.length; i++, j++) {
       colorShapes[i] = pentVerts[j];
       }
-    
+      PyrStart = i;
+    for(j=0; j< pyrVerts.length; i++, j++) {
+      colorShapes[i] = pyrVerts[j];
+    }
   
   
   // Create a buffer object
@@ -324,7 +328,58 @@ function makeCube() {
 
     ]);
 }
+//this function makes a six sided pyramid
+function makeSixPyr() {
+  var tri = 1.75
+  pyrVerts = new Float32Array([
+    // RED
 
+    -1.0,  1.5, -0.75, 1.0,    1.0, 0.0, 0.0,  
+     1.0,  1.5, -0.75, 1.0,    1.0, 0.5, 0.0,  
+    -1.0, -1.5, -0.75, 1.0,    1.0, 1.0, 0.0,  
+     
+    -1.0, -1.5, -0.75, 1.0,    1.0, 0.1, 0.1,  
+     1.0, -1.5, -0.75, 1.0,    1.0, 0.5, 0.1,  
+     1.0,  1.5, -0.75, 1.0,    1.0, 1.0, 0.1,  
+
+    // GREEN
+    -1.0,  1.5, -0.75, 1.0,    0.0, 1.0, 0.0,  
+    -1.0, -1.5, -0.75, 1.0,    0.0, 1.0, 0.5,  
+    -tri,  0.0, -0.75, 1.0,    0.0, 1.0, 1.0,  
+
+     1.0,  1.5, -0.75, 1.0,    0.1, 1.0, 0.1,  
+     1.0, -1.5, -0.75, 1.0,    0.1, 1.0, 0.5,   
+     tri,  0.0, -0.75, 1.0,    0.1, 1.0, 1.0,  
+
+    // BLUE
+    -1.0,  1.5, -0.75, 1.0,    0.0, 0.0, 1.0,  
+     1.0,  1.5, -0.75, 1.0,    0.5, 0.0, 1.0,  
+     0.0,  0.0,  0.75, 1.0,    1.0, 0.0, 1.0,  
+
+    -1.0, -1.5, -0.75, 1.0,    0.1, 0.1, 1.0,  
+     1.0, -1.5, -0.75, 1.0,    0.5, 0.1, 1.0,  
+     0.0,  0.0,  0.75, 1.0,    1.0, 0.1, 1.0,  
+
+    //CYAN
+    -1.0,  1.5, -0.75, 1.0,    0.0, 1.0, 1.0,   
+    -tri,  0.0, -0.75, 1.0,    0.25, 1.0, 1.0,   
+     0.0,  0.0,  0.75, 1.0,    0.5, 1.0, 1.0,  
+    
+    -1.0, -1.5, -0.75, 1.0,    0.25, 1.0, 1.0,  
+    -tri,  0.0, -0.75, 1.0,    0.5, 1.0, 1.0,    
+     0.0,  0.0,  0.75, 1.0,    0.75, 1.0, 1.0,    
+    
+    //MAGENTA
+     1.0,  1.5, -0.75, 1.0,    1.0, 0.0, 1.0,  
+     tri,  0.0, -0.75, 1.0,    1.0, 0.25, 1.0,  
+     0.0,  0.0,  0.75, 1.0,    1.0, 0.5, 1.0, 
+
+     1.0, -1.5, -0.75, 1.0,    1.0, 0.25, 1.0,  
+     tri,  0.0, -0.75, 1.0,    1.0, 0.5, 1.0,  
+     0.0,  0.0,  0.75, 1.0,    1.0, 0.75, 1.0,  
+
+    ]);
+}
 //this function makes a five sided box, which will later represent a crude palm of the hand
 function makePenthouse() {
   var p = 1.15
@@ -672,19 +727,20 @@ modelMatrix = popMatrix();
   //            the second set of vertices stored in our VBO:
   
   var dist = Math.sqrt(xMdragTot*xMdragTot + yMdragTot*yMdragTot);
+  modelMatrix.rotate(180, 0.0, 0.0, 1.0);
   modelMatrix.rotate(dist*120.0, -yMdragTot+0.0001, xMdragTot+0.0001, 0.0);
 
 
   gl.uniformMatrix4fv(u_ModelMatrix, false, modelMatrix.elements);
       // Draw just the first set of vertices: start at vertex SHAPE_0_SIZE
   gl.drawArrays(gl.TRIANGLES,
-                cylVerts.length/floatsPerVertex, 36);
+                cylVerts.length/floatsPerVertex + 36 + 48, 30);
 
 
   //Draw Appendages
-  modelMatrix.translate(1.5, 0.0, 0.0);
-  modelMatrix.scale(1.5, 0.45, 0.45);
-  modelMatrix.rotate(90, 0.0, 1.0, 0.0);
+  modelMatrix.translate(0.0, 0.0, -1.75);
+  modelMatrix.scale(.45, 0.45, 1.0);
+  modelMatrix.rotate(-180, 0.0, 1.0, 0.0);
   gl.uniformMatrix4fv(u_ModelMatrix, false, modelMatrix.elements);
   // Draw just the the cylinder's vertices:
   gl.drawArrays(gl.TRIANGLE_STRIP,        // use this drawing primitive, and
